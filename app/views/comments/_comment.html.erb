@@ -1,0 +1,22 @@
+ <% vote = comment.votes.where(user_id: current_user.id).first ? true : false %>
+
+<li class="list-group-item">
+    <div class="row article-row">
+        <div class="col-md-1 vote-column" style="<%= vote ? 'display:none;' : '' %> width: 1%;">
+            <center><a class="upvote-comment" data-comment-id="<%= comment.id %>" id="up_comment_<%= comment.id %>" href="javascript:void(0)"><div style="width: 10px;height: 10px; border: 0px;margin: 3px 2px 6px; background: url(<%= image_path('grayarrow.gif') %>) no-repeat;" title="upvote"></div></a></center>
+        </div>
+    <div class="col-md-11 article-info-column">    
+        <%= comment.content %>
+        <br>
+        <small>by <%= comment.user.email %> <%= time_ago_in_words(comment.created_at) %> ago</small>
+        <% if comment.depth < Comment::MAX_DEPTH %>
+            <%= link_to("reply", new_comment_path(article_id: article.id,comment_id: comment.id)) %> 
+        <% end %>
+        <span id="unv_comment_<%= comment.id %>" style="<%= vote ? '' : 'display:none;' %>">|<a href="javascript:void(0)" class="unvote-comment" data-comment-id="<%= comment.id %>">unvote</a></span>
+        <ul>
+            <% comment.replies.each do |reply| %>
+            <%= render partial: 'comments/comment', locals: { article: article ,comment: reply } %>
+            <% end %>
+        </ul>
+    </div>
+</li>

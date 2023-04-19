@@ -1,0 +1,46 @@
+<div id="<%= dom_id article %>">
+  <% user_id = current_user.present? ? current_user.id : 0 %>
+  <% vote = article.votes.where(user_id: user_id).first ? true : false %>
+  <div class="row article-row">
+    <div class="col-md-1 vote-column" style="<%= vote ? 'display:none;' : '' %> width: 1%;">
+      <center><a class="upvote-article" data-article-id="<%= article.id %>" id="up_article_<%= article.id%>" href="javascript:void(0)"><div style="width: 10px;height: 10px; border: 0px;margin: 3px 2px 6px; background: url(<%= image_path('grayarrow.gif') %>) no-repeat;" title="upvote"></div></a></center>
+    </div>
+    <div class="col-md-11 article-info-column">
+      <div class="row">
+        <div class="col-md-12 article-title">
+          <span class="titleline"><%= link_to article.title, article %><span class="sitebit comhead"></span></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 article-subline">
+          <span class="score" id="score_<%= article.id %>"><%= article.votes.count %> points</span> by <%= article.user.email %> <span class="age" title="<%= article.created_at.strftime('%Y-%m-%d %H:%M') %>"><a><%= time_ago_in_words(article.created_at) %> ago</a></span> <span id="unv_article_<%= article.id %>" style="<%= vote ? '' : 'display:none;' %>">|<a href="javascript:void(0)" class="unvote-article" data-article-id="<%= article.id %>">unvote</a></span> | <a href="item?id=<%= article.id %>"><%= article.comments.count %> comments</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 article-content">
+          <%= article.content %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <%= form_for([article, Comment.new]) do |f| %>
+            <div class="form-group">
+              <%= f.label :content, "Add a comment" %>
+              <%= f.text_area :content, rows: 3, class: "form-control" %>
+              <%= f.hidden_field :user_id, value: current_user ? current_user.id : "" %>
+              <%= f.hidden_field :article_id, value: @article.id %>
+            </div>
+            <%= f.submit "Add Comment", class: "btn btn-primary" %>
+          <% end %>
+
+          <h3>Comments</h3>
+          <ul class="list-group">
+            <% article.comments.where(parent_id: nil).each do |comment| %>
+              <%= render partial: 'comments/comment', locals: {  article: @article , comment: comment } %>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

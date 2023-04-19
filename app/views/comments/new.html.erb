@@ -1,0 +1,16 @@
+ <ul class="list-group">
+  <li class="list-group-item">
+    <%= @parent_comment.content %>
+    <br>
+    <small>by <%= @parent_comment.user.email %> <%= time_ago_in_words(@parent_comment.created_at) %> ago</small>
+  </li>
+ <ul>
+<%= form_for([@article, @parent_comment.replies.build]) do |f| %>
+  <div class="form-group">
+    <%= f.text_area :content, rows: 3, class: "form-control" %>
+    <%= f.hidden_field :user_id, value: current_user.id %>
+    <%= f.hidden_field :article_id, value: @article.id %>
+    <%= f.hidden_field :parent_id, value: @parent_comment.id if @parent_comment %>
+  </div>
+  <%= f.submit "reply", class: "btn btn-primary" %>
+<% end %>

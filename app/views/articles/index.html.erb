@@ -1,0 +1,75 @@
+<p style="color: green"><%= notice %></p>
+
+<table border="0" cellpadding="0" cellspacing="0">
+  <thead>
+
+  <tbody>
+    <% @articles.each_with_index do |article, index| %>
+      <% user_id = current_user.present? ? current_user.id : 0 %>
+      <% vote = article.votes.where(user_id: user_id).first ? true : false %>
+      <tr class="athing" id="<%= article.id%>">
+        <td align="right" valign="top" class="title"><span class="rank"><%= index+1 %>.</span></td>
+        <td><div valign="top" style="<%= vote ? "display:none;" : "" %> width: 1%;" ><center><a class="upvote-article" data-article-id="<%= article.id %>" id="up_article_<%= article.id%>" href="javascript:void(0)"><div style="width: 10px;height: 10px; border: 0px;margin: 3px 2px 6px; background: url(<%= image_path("grayarrow.gif") %>) no-repeat;" title="upvote"></div></a></center></div></td>
+        <td valign="top" class="title"><span class="titleline"><%= link_to article.title, article %><span class="sitebit comhead"></span></span></td>
+      </tr>
+      <tr>
+      <td colspan="2"></td><td class="subtext"><span class="subline">
+        <span class="score" id="score_35598281"><%= article.votes.count%> points</span> by <%= article.user.email %> <span class="age" title="<%= article.created_at.strftime("%Y-%m-%d %H:%M") %>"><a><%= time_ago_in_words(article.created_at) %> ago</a></span> <span id="unv_article_<%= article.id %>" style="<%= vote ? "" : "display:none;" %>">|<a href="javascript:void(0)" class="unvote-article" data-article-id="<%= article.id %>">unvote</a></span> | <a href="<%=article_path(article)%>"><%= article.comments.count %> comments</a>        </span>
+      </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @articles, total_count: @articles.total_count %>
+
+<script>
+  $(document).ready(function() {
+    $("a.upvote-article").click(function(event) {
+      event.preventDefault();
+      var articleId = $(this).data("article-id");
+      var url = "<%= request.base_url %>/articles/"+articleId+"/upvote";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+          article_id: articleId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          $("#up_article_" + articleId).closest("div").hide();
+          $("#unv_article_"+ articleId).show();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log("AJAX Error: " + textStatus);
+        }
+      });
+    });
+
+    $(".unvote-article").click(function(event) {
+      event.preventDefault();
+      var articleId = $(this).data('article-id');
+      var url = "<%= request.base_url %>/articles/"+articleId+"/unvote";
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+          article_id: articleId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          if (data.status == 'success') {
+            $('#unv_article_' + articleId).hide();
+            $("#up_article_" + articleId).closest("div").show();
+          } else {
+            alert('Error unvoting article.');
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          alert('Error unvoting article.');
+        }
+      });
+    });
+  });
+</script>

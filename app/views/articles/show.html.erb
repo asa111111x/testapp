@@ -1,0 +1,103 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @article %>
+
+<script>
+  $(document).ready(function() {
+    $("a.upvote-article").click(function(event) {
+      event.preventDefault();
+      var articleId = $(this).data("article-id");
+      var url = "<%= request.base_url %>/articles/"+articleId+"/upvote";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+          article_id: articleId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          $("#up_article_" + articleId).closest("div").hide();
+          $("#unv_article_"+ articleId).show();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log("AJAX Error: " + textStatus);
+        }
+      });
+    });
+
+    $(".unvote-article").click(function(event) {
+      event.preventDefault();
+      var articleId = $(this).data('article-id');
+      var url = "<%= request.base_url %>/articles/"+articleId+"/unvote";
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+          article_id: articleId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          if (data.status == 'success') {
+            $('#unv_article_' + articleId).hide();
+            $("#up_article_" + articleId).closest("div").show();
+          } else {
+            alert('Error unvoting article.');
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          alert('Error unvoting article.');
+        }
+      });
+    });
+  });
+
+    $(document).ready(function() {
+    $("a.upvote-comment").click(function(event) {
+      event.preventDefault();
+      var commentId = $(this).data("comment-id");
+      var url = "<%= request.base_url %>/comments/"+commentId+"/upvote";
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+          comment_id: commentId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          $("#up_comment_" + commentId).closest("div").hide();
+          $("#unv_comment_"+ commentId).show();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log("AJAX Error: " + textStatus);
+        }
+      });
+    });
+
+    $(".unvote-comment").click(function(event) {
+      event.preventDefault();
+      var commentId = $(this).data('comment-id');
+      var url = "<%= request.base_url %>/comments/"+commentId+"/unvote";
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+          comment_id: commentId,
+          authenticity_token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          if (data.status == 'success') {
+            $('#unv_comment_' + commentId).hide();
+            $("#up_comment_" + commentId).closest("div").show();
+          } else {
+            alert('Error unvoting comment.');
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          alert('Error unvoting comment.');
+        }
+      });
+    });
+  });
+</script>
